@@ -46,7 +46,7 @@ declare class SimplePicker {
     initElMethod(el: any): void;
     init(el: HTMLElement, opts: SimplePickerOpts): void;
     reset(newDate?: Date): void;
-    compactMode(): void;
+    compactMode: () => string;
     disableTimeSection(): void;
     enableTimeSection(): void;
     injectTemplate(el: HTMLElement): void;

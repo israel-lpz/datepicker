@@ -1,3 +1,4 @@
+import { formatTimeFromInputElement, formatTimeFromMinutes } from './date-util';
 import * as dateUtil from './date-util';
 import type { TimeOptions, TimePicker, MinOrMaxTimeOption } from './interfaces';
 import { htmlTemplate } from './template';
@@ -89,16 +90,25 @@ class SimplePicker {
 		}
 		el ??= document.body;
 		opts ??= {};
+
 		this.injectTemplate(el);
 		this.init(el, opts);
 		this.initListeners();
 		this._eventHandlers = {};
+
 		this.$timeInput.style.marginLeft = 'auto';
 		this.$timeInput.style.marginRight = 'auto';
 		const options: TimeOptions = {
 			clear: 'Borrar',
 			editable: false,
 			interval: opts.interval,
+			onSet: ({ select: time }: { select: [number, number] }) => {
+				if (time) {
+					console.log(time);
+					this.$time.innerHTML = formatTimeFromMinutes(time);
+					this.updateSelectedDate();
+				}
+			},
 		};
 		const $input = jquery(this.$timeInput).pickatime(
 			options as Pickadate.Options,
@@ -149,7 +159,6 @@ class SimplePicker {
 		this.$time.classList.add('simplepicker-fade');
 		this.render(dateUtil.scrapeMonth(today));
 
-		opts = opts || {};
 		this.opts = opts;
 
 		this.reset(opts.selectedDate || today);
@@ -187,10 +196,7 @@ class SimplePicker {
 		}
 	}
 
-	compactMode() {
-		const { $date } = this;
-		$date.style.display = 'none';
-	}
+	compactMode = () => (this.$date.style.display = 'none');
 
 	disableTimeSection() {
 		const { $timeSectionIcon } = this;
@@ -210,7 +216,7 @@ class SimplePicker {
 
 	clearRows() {
 		this.$tds.forEach((td) => {
-			td.innerHTML = '';
+			td.textContent = '';
 			td.classList.remove('active');
 		});
 	}
@@ -407,17 +413,6 @@ class SimplePicker {
 				_this.handleIconButtonClick(target);
 				return;
 			}
-		});
-
-		$timeInput.addEventListener('input', (e: any) => {
-			if (e.target.value === '') {
-				return;
-			}
-
-			_this.$time.innerHTML = dateUtil.formatTimeFromInputElement(
-				e.target.value,
-			);
-			_this.updateSelectedDate();
 		});
 
 		$ok.addEventListener('click', function () {
