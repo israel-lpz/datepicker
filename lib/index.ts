@@ -6,6 +6,7 @@ import jquery from 'jquery';
 import './simplepicker.css';
 import 'pickadate/lib/themes/classic.css';
 import 'pickadate/lib/themes/classic.time.css';
+export { MinOrMaxTimeOption } from './interfaces';
 
 type SimplePickerEvent = 'submit' | 'close';
 

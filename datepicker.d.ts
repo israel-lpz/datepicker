@@ -64,4 +64,4 @@ declare class SimplePicker {
     on(event: SimplePickerEvent, handler: HandlerFunction): void;
     toggleDisplayFade(): void;
 }
-export { SimplePicker as default };
+export { SimplePicker as default, MinOrMaxTimeOption };

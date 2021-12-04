@@ -1,6 +1,6 @@
 {
 	"name": "@israel-lpz/datepicker",
-	"version": "1.0.3",
+	"version": "1.0.5",
 	"description": "A union of simplepicker & pickadate package",
 	"types": "datepicker.d.ts",
 	"scripts": {
