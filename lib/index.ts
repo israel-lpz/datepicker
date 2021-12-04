@@ -104,6 +104,8 @@ class SimplePicker {
 			options as Pickadate.Options,
 		);
 		this.$timePicker = $input.pickatime('picker');
+		if (opts.min) this.min = opts.min;
+		if (opts.max) this.max = opts.max;
 		if (this.$timePicker.get('min').pick === 0)
 			this.$timePicker.set('select', [0, 0]);
 		else this.$timePicker.set('select', this.min);
