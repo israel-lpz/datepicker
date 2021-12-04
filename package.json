@@ -1,52 +1,53 @@
 {
-  "name": "@israel-lpz/datepicker",
-  "version": "1.0.2",
-  "description": "A union of simplepicker & pickadate package",
-  "types": "datepicker.d.ts",
-  "scripts": {
-	"dev:rollup": "rollup -c rollup.config.js",
-	"build:rollup": "rollup -c rollup.config.js --environment NODE_ENV:production"
-  },
-  "repository": "git://github.com/israel-lpz/datepicker.git",
-  "main": "dist/datepicker.js",
-  "browser": "dist/datepicker.js",
-  "publishConfig": {
-	"access": "public"
-  },
-  "keywords": [
-	"simple",
-	"date",
-	"picker",
-	"datepicker",
-	"date-picker"
-  ],
-  "author": "Israel Lopez",
-  "license": "MIT",
-  "devDependencies": {
-	"@rollup/plugin-commonjs": "^21.0.1",
-	"@rollup/plugin-node-resolve": "^13.0.6",
-	"@rollup/plugin-typescript": "^8.3.0",
-	"@types/node": "^16.11.9",
-	"@types/pickadate": "^3.5.32",
-	"autoprefixer": "^10.4.0",
-	"postcss": "^8.4.4",
-	"prettier": "^2.5.0",
-	"rollup": "^2.60.0",
-	"rollup-plugin-amd": "^4.0.0",
-	"rollup-plugin-css-bundle": "^1.0.4",
-	"rollup-plugin-dts": "^4.0.1",
-	"rollup-plugin-empty": "^1.0.0",
-	"rollup-plugin-styles": "^3.14.1",
-	"rollup-plugin-terser": "^7.0.2",
-	"rollup-plugin-ts": "^2.0.4",
-	"tslib": "^2.3.1",
-	"typescript": "^4.5.2"
-  },
-  "peerDependencies": {
-	"jquery": "^3.6.0"
-  },
-  "dependencies": {
-	"pickadate": "3",
-	"rollup-plugin-copy": "^3.4.0"
-  }
+	"name": "@israel-lpz/datepicker",
+	"version": "1.0.2",
+	"description": "A union of simplepicker & pickadate package",
+	"types": "datepicker.d.ts",
+	"scripts": {
+		"dev:rollup": "rollup -c rollup.config.js",
+		"build:rollup": "rollup -c rollup.config.js --environment NODE_ENV:production"
+	},
+	"repository": "git://github.com/israel-lpz/datepicker.git",
+	"main": "dist/datepicker.js",
+	"browser": "dist/datepicker.js",
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"simple",
+		"date",
+		"picker",
+		"datepicker",
+		"date-picker"
+	],
+	"author": "Israel Lopez",
+	"license": "MIT",
+	"devDependencies": {
+		"@rollup/plugin-commonjs": "^21.0.1",
+		"@rollup/plugin-node-resolve": "^13.0.6",
+		"@rollup/plugin-typescript": "^8.3.0",
+		"@types/node": "^16.11.9",
+		"@types/pickadate": "^3.5.32",
+		"autoprefixer": "^10.4.0",
+		"postcss": "^8.4.4",
+		"prettier": "^2.5.0",
+		"rollup": "^2.60.0",
+		"rollup-plugin-amd": "^4.0.0",
+		"rollup-plugin-css-bundle": "^1.0.4",
+		"rollup-plugin-dts": "^4.0.1",
+		"rollup-plugin-empty": "^1.0.0",
+		"rollup-plugin-styles": "^3.14.1",
+		"rollup-plugin-terser": "^7.0.2",
+		"rollup-plugin-ts": "^2.0.4",
+		"tslib": "^2.3.1",
+		"typescript": "^4.5.2"
+	},
+	"peerDependencies": {
+		"jquery": "^3.6.0"
+	},
+	"dependencies": {
+		"cssnano": "^5.0.12",
+		"pickadate": "3",
+		"rollup-plugin-copy": "^3.4.0"
+	}
 }

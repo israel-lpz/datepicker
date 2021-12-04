@@ -2,11 +2,10 @@ import { terser } from 'rollup-plugin-terser';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import ts from 'rollup-plugin-ts';
 import commonjs from '@rollup/plugin-commonjs';
-import copy from 'rollup-plugin-copy';
-import styles from 'rollup-plugin-styles';
 import autoprefixer from 'autoprefixer';
 import cssbundle from 'rollup-plugin-css-bundle';
 import postcss from 'postcss';
+import cssnano from 'cssnano';
 
 const empty = require('rollup-plugin-empty');
 const prodMode = process.env.NODE_ENV === 'production';
@@ -37,16 +36,15 @@ const config = {
 			silent: false,
 			dir: 'dist',
 		}),
-		// copy({
-		// 	targets: [
-		// 		{
-		// 			src: 'lib/simplepicker.css',
-		// 			dest: 'dist/',
-		// 		},
-		// 	],
-		// }),
 		cssbundle({
-			transform: (code) => postcss([autoprefixer]).process(code, {}),
+			transform: (code) => {
+				const plugins = [autoprefixer];
+				if (prodMode) plugins.push(cssnano);
+				return postcss(plugins).process(code, {
+					from: undefined,
+					map: true,
+				});
+			},
 		}),
 	],
 };
