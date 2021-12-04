@@ -1,8 +1,3 @@
-type MinOrMaxDateOption = Date | [
-    number,
-    number,
-    number
-] | number | boolean;
 type MinOrMaxTimeOption = Date | [
     number,
     number
@@ -23,7 +18,6 @@ interface EventHandlers {
 }
 declare class SimplePicker {
     selectedDate: Date;
-    $simplePicker: HTMLElement;
     readableDate: string;
     _eventHandlers: EventHandlers;
     _validOnListeners: readonly ["submit", "close"];
@@ -45,8 +39,9 @@ declare class SimplePicker {
     private $ok;
     private $displayDateElements;
     private $timePicker;
-    set max(value: MinOrMaxTimeOption | MinOrMaxDateOption);
-    set min(value: MinOrMaxTimeOption | MinOrMaxDateOption);
+    set max(value: MinOrMaxTimeOption);
+    set min(value: MinOrMaxTimeOption);
+    get min(): MinOrMaxTimeOption;
     constructor(arg1?: HTMLElement | string | SimplePickerOpts, arg2?: SimplePickerOpts);
     initElMethod(el: any): void;
     init(el: HTMLElement, opts: SimplePickerOpts): void;

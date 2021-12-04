@@ -1,10 +1,5 @@
 import * as dateUtil from './date-util';
-import type {
-	TimeOptions,
-	TimePicker,
-	MinOrMaxTimeOption,
-	MinOrMaxDateOption,
-} from './interfaces';
+import type { TimeOptions, TimePicker, MinOrMaxTimeOption } from './interfaces';
 import { htmlTemplate } from './template';
 import 'pickadate/lib/compressed/picker.time';
 import jquery from 'jquery';
@@ -36,7 +31,7 @@ const today = new Date();
 
 class SimplePicker {
 	selectedDate: Date = new Date();
-	$simplePicker: HTMLElement;
+	// $simplePicker: HTMLElement;
 	readableDate: string;
 	_eventHandlers: EventHandlers;
 	_validOnListeners = validListeners;
@@ -60,11 +55,16 @@ class SimplePicker {
 	private $displayDateElements: HTMLElement[];
 	private $timePicker: TimePicker;
 
-	public set max(value: MinOrMaxTimeOption | MinOrMaxDateOption) {
+	public set max(value: MinOrMaxTimeOption) {
 		this.$timePicker.set('max', value);
 	}
-	public set min(value: MinOrMaxTimeOption | MinOrMaxDateOption) {
+	public set min(value: MinOrMaxTimeOption) {
 		this.$timePicker.set('min', value);
+	}
+
+	public get min(): MinOrMaxTimeOption {
+		const time = this.$timePicker.get('min');
+		return [time.hour, time.mins];
 	}
 
 	constructor(
@@ -103,7 +103,9 @@ class SimplePicker {
 			options as Pickadate.Options,
 		);
 		this.$timePicker = $input.pickatime('picker');
-		this.$timePicker.set('min', [5, 0]);
+		if (this.$timePicker.get('min').pick === 0)
+			this.$timePicker.set('select', [0, 0]);
+		else this.$timePicker.set('select', this.min);
 	}
 
 	// We use $, $$ as helper method to conviently select
@@ -262,7 +264,7 @@ class SimplePicker {
 	}
 
 	updateSelectedDate(el?: HTMLElement) {
-		const { $monthAndYear, $time, $date } = this;
+		const { $monthAndYear, $time } = this;
 
 		let day;
 		if (el) {
