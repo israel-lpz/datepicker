@@ -1,4 +1,4 @@
-import { formatTimeFromInputElement, formatTimeFromMinutes } from './date-util';
+import { formatTimeFromMinutes } from './date-util';
 import * as dateUtil from './date-util';
 import type { TimeOptions, TimePicker, MinOrMaxTimeOption } from './interfaces';
 import { htmlTemplate } from './template';
@@ -11,7 +11,7 @@ export { MinOrMaxTimeOption } from './interfaces';
 
 type SimplePickerEvent = 'submit' | 'close';
 
-interface SimplePickerOpts {
+export type SimplePickerOpts = {
 	zIndex?: number;
 	compactMode?: boolean;
 	disableTimeSection?: boolean;
@@ -19,7 +19,8 @@ interface SimplePickerOpts {
 	min?: MinOrMaxTimeOption;
 	max?: MinOrMaxTimeOption;
 	interval?: number;
-}
+	onChange?(): Date;
+};
 
 const validListeners = ['submit', 'close'] as const;
 
@@ -104,7 +105,6 @@ class SimplePicker {
 			interval: opts.interval,
 			onSet: ({ select: time }: { select: [number, number] }) => {
 				if (time) {
-					console.log(time);
 					this.$time.innerHTML = formatTimeFromMinutes(time);
 					this.updateSelectedDate();
 				}
@@ -393,8 +393,7 @@ class SimplePicker {
 	}
 
 	initListeners() {
-		const { $simplepicker, $timeInput, $ok, $cancel, $simplepickerWrapper } =
-			this;
+		const { $simplepicker, $ok, $cancel, $simplepickerWrapper } = this;
 		const _this = this;
 		$simplepicker.addEventListener('click', function (e) {
 			const target = e.target as HTMLElement;
