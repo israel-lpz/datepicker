@@ -1,11 +1,11 @@
 {
 	"name": "@israel-lpz/datepicker",
-	"version": "1.1.1",
+	"version": "1.1.4",
 	"description": "A union of simplepicker & pickadate package",
 	"types": "datepicker.d.ts",
 	"scripts": {
-		"dev:rollup": "rollup -c rollup.config.js",
-		"build:rollup": "rollup -c rollup.config.js --environment NODE_ENV:production"
+		"build:dev": "rollup -c rollup.config.js",
+		"build:prod": "rollup -c rollup.config.js --environment NODE_ENV:production"
 	},
 	"repository": "git://github.com/israel-lpz/datepicker.git",
 	"main": "dist/datepicker.js",
@@ -47,6 +47,7 @@
 	},
 	"dependencies": {
 		"cssnano": "^5.0.12",
+		"nanoevents": "^6.0.2",
 		"pickadate": "3",
 		"rollup-plugin-copy": "^3.4.0"
 	}

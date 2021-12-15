@@ -7,9 +7,14 @@ import jquery from 'jquery';
 import './simplepicker.css';
 import 'pickadate/lib/themes/classic.css';
 import 'pickadate/lib/themes/classic.time.css';
-export { MinOrMaxTimeOption } from './interfaces';
+import { createNanoEvents, Unsubscribe } from 'nanoevents';
 
-type SimplePickerEvent = 'submit' | 'close';
+type IOnSubmit = { selectedDate: Date; readableDate: string };
+
+type SimplePickerEvents = {
+	submit: (e: IOnSubmit) => void;
+	close: () => void;
+};
 
 export type SimplePickerOpts = {
 	zIndex?: number;
@@ -22,26 +27,22 @@ export type SimplePickerOpts = {
 	onChange?(): Date;
 };
 
-const validListeners = ['submit', 'close'] as const;
-
-type HandlerFunction = (...args: unknown[]) => void;
-
-interface EventHandlers {
-	[key: string]: HandlerFunction[];
-}
+// type EventHandlers = {
+// 	[E in keyof SimplePickerEvents]: Array<SimplePickerEvents[E]>;
+// };
 
 const today = new Date();
 
 class SimplePicker {
+	private emitter = createNanoEvents<SimplePickerEvents>();
 	selectedDate: Date = new Date();
 	// $simplePicker: HTMLElement;
 	readableDate: string;
-	_eventHandlers: EventHandlers;
-	_validOnListeners = validListeners;
+	// _eventHandlers: EventHandlers;
 
 	private opts: SimplePickerOpts;
-	private $: Function;
-	private $$: Function;
+	private $: (el: string) => HTMLElement;
+	private $$: (el: string) => HTMLElement[];
 	private $simplepicker: HTMLElement;
 	private $simplepickerWrapper: HTMLElement;
 	private $trs: HTMLElement[];
@@ -70,10 +71,7 @@ class SimplePicker {
 		return [time.hour, time.mins];
 	}
 
-	constructor(
-		arg1?: HTMLElement | string | SimplePickerOpts,
-		arg2?: SimplePickerOpts,
-	) {
+	constructor(arg1?: HTMLElement | string | SimplePickerOpts, arg2?: SimplePickerOpts) {
 		let el: HTMLElement | undefined = undefined;
 		let opts: SimplePickerOpts | undefined = arg2;
 
@@ -95,7 +93,10 @@ class SimplePicker {
 		this.injectTemplate(el);
 		this.init(el, opts);
 		this.initListeners();
-		this._eventHandlers = {};
+		// this._eventHandlers = {
+		// 	submit: [],
+		// 	close: [],
+		// };
 
 		this.$timeInput.style.marginLeft = 'auto';
 		this.$timeInput.style.marginRight = 'auto';
@@ -110,14 +111,11 @@ class SimplePicker {
 				}
 			},
 		};
-		const $input = jquery(this.$timeInput).pickatime(
-			options as Pickadate.Options,
-		);
+		const $input = jquery(this.$timeInput).pickatime(options as Pickadate.Options);
 		this.$timePicker = $input.pickatime('picker');
 		if (opts.min) this.min = opts.min;
 		if (opts.max) this.max = opts.max;
-		if (this.$timePicker.get('min').pick === 0)
-			this.$timePicker.set('select', [0, 0]);
+		if (this.$timePicker.get('min').pick === 0) this.$timePicker.set('select', [0, 0]);
 		else this.$timePicker.set('select', this.min);
 	}
 
@@ -125,15 +123,13 @@ class SimplePicker {
 	// element we need for simplepicker.
 	// Also, Limit the query to the wrapper class to avoid
 	// selecting elements on the other instance.
-	initElMethod(el) {
-		this.$ = (sel) => el.querySelector(sel);
-		this.$$ = (sel) => el.querySelectorAll(sel);
+	initElMethod(el: Element) {
+		this.$ = (sel) => el.querySelector(sel)!;
+		this.$$ = (sel) => Array.from(el.querySelectorAll(sel)!);
 	}
 
 	init(el: HTMLElement, opts: SimplePickerOpts) {
-		this.$simplepickerWrapper = <HTMLElement>(
-			el.querySelector('.simplepicker-wrapper')
-		);
+		this.$simplepickerWrapper = <HTMLElement>el.querySelector('.simplepicker-wrapper');
 		this.initElMethod(this.$simplepickerWrapper);
 
 		const { $, $$ } = this;
@@ -145,16 +141,12 @@ class SimplePicker {
 		this.$date = $('.simplepicker-date');
 		this.$day = $('.simplepicker-day-header');
 		this.$time = $('.simplepicker-time');
-		this.$timeInput = $('.simplepicker-time-section input');
+		this.$timeInput = $('.simplepicker-time-section input') as HTMLInputElement;
 		this.$timeSectionIcon = $('.simplepicker-icon-time');
 		this.$cancel = $('.simplepicker-cancel-btn');
 		this.$ok = $('.simplepicker-ok-btn');
 
-		this.$displayDateElements = [
-			this.$day,
-			this.$headerMonthAndYear,
-			this.$date,
-		];
+		this.$displayDateElements = [this.$day, this.$headerMonthAndYear, this.$date];
 
 		this.$time.classList.add('simplepicker-fade');
 		this.render(dateUtil.scrapeMonth(today));
@@ -266,6 +258,7 @@ class SimplePicker {
 		if (lasRowIsEmpty && $lastRow) {
 			$lastRow.style.display = 'none';
 		} else {
+			//@ts-ignore
 			$lastRow.style.display = 'table-row';
 		}
 
@@ -306,11 +299,9 @@ class SimplePicker {
 	}
 
 	selectDateElement(el: HTMLElement) {
-		const alreadyActive = this.$('.simplepicker-calender tbody .active');
+		const alreadyActive = this.$$('.simplepicker-calender tbody .active');
+		alreadyActive.forEach((e) => e.classList.remove('active'));
 		el.classList.add('active');
-		if (alreadyActive) {
-			alreadyActive.classList.remove('active');
-		}
 
 		this.updateSelectedDate(el);
 		this.updateDateComponents(this.selectedDate);
@@ -405,60 +396,36 @@ class SimplePicker {
 				return;
 			}
 
-			if (
-				tagName === 'button' &&
-				target.classList.contains('simplepicker-icon')
-			) {
+			if (tagName === 'button' && target.classList.contains('simplepicker-icon')) {
 				_this.handleIconButtonClick(target);
 				return;
 			}
 		});
 
-		$ok.addEventListener('click', function () {
+		$ok.addEventListener('click', () => {
 			_this.close();
-			_this.callEvent('submit', function (func) {
-				func(_this.selectedDate, _this.readableDate);
+			this.emitter.emit('submit', {
+				selectedDate: this.selectedDate,
+				readableDate: this.readableDate,
 			});
 		});
 
-		function close() {
+		const close = () => {
 			_this.close();
-			_this.callEvent('close', function (f) {
-				f();
-			});
-		}
+			this.emitter.emit('close');
+		};
 
 		$cancel.addEventListener('click', close);
 		$simplepickerWrapper.addEventListener('click', close);
 	}
 
-	callEvent(
-		event: SimplePickerEvent,
-		dispatcher: (a: HandlerFunction) => void,
-	) {
-		const listeners = this._eventHandlers[event] || [];
-		listeners.forEach(function (func: HandlerFunction) {
-			dispatcher(func);
-		});
-	}
-
-	open() {
-		this.$simplepickerWrapper.classList.add('active');
-	}
+	open = () => this.$simplepickerWrapper.classList.add('active');
 
 	// can be called by user or by click the cancel btn.
-	close() {
-		this.$simplepickerWrapper.classList.remove('active');
-	}
+	close = () => this.$simplepickerWrapper.classList.remove('active');
 
-	on(event: SimplePickerEvent, handler: HandlerFunction) {
-		const { _validOnListeners, _eventHandlers } = this;
-		if (!_validOnListeners.includes(event)) {
-			throw new Error('Not a valid event!');
-		}
-
-		_eventHandlers[event] = _eventHandlers[event] || [];
-		_eventHandlers[event].push(handler);
+	on<E extends keyof SimplePickerEvents>(event: E, callback: SimplePickerEvents[E]): Unsubscribe {
+		return this.emitter.on(event, callback);
 	}
 
 	toggleDisplayFade() {
@@ -470,3 +437,4 @@ class SimplePicker {
 }
 
 export default SimplePicker;
+export type { MinOrMaxTimeOption } from './interfaces';

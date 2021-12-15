@@ -38,9 +38,7 @@ const config = {
 		}),
 		cssbundle({
 			transform: (code) => {
-				const plugins = [autoprefixer];
-				if (prodMode) plugins.push(cssnano);
-				return postcss(plugins).process(code, {
+				return postcss(prodMode ? [autoprefixer, cssnano] : []).process(code, {
 					from: undefined,
 					map: true,
 				});
